@@ -1,0 +1,52 @@
+from gpiozero import MCP3008
+import requests
+import time
+
+# Set up the MCP3008 ADC (Analog to Digital Converter)
+air_quality_sensor = MCP3008(channel=0)  # Connect the sensor to channel 0
+
+# ThingSpeak API key and channel ID (replace with your own values)
+api_key = '1e42D4578Hiooe\what3241'
+channel_id = 'Gpt-Api169forAQI1!'
+
+def read_air_quality():
+    # Read analog value from the air quality sensor
+    raw_value = air_quality_sensor.value
+
+    # Convert the raw value to a meaningful air quality index (AQI) value
+    aqi = convert_to_aqi(raw_value)
+
+    return aqi
+
+def convert_to_aqi(raw_value):
+    # Add your conversion logic based on the specifications of your air quality sensor
+    # This is a hypothetical function; you need to replace it with actual conversion logic
+    # Example: aqi = your_conversion_formula(raw_value)
+    aqi = raw_value * 100
+
+    return aqi
+
+def send_to_thingspeak(aqi):
+    # Prepare the ThingSpeak API endpoint and parameters
+    url = f'https://api.thingspeak.com/update?api_key={api_key}&field1={aqi}'
+
+    # Send the data to ThingSpeak
+    response = requests.get(url)
+
+    # Print the response (for debugging purposes)
+    print(f"Data sent to ThingSpeak. Response: {response.text}")
+
+# Main loop
+while True:
+    try:
+        # Read air quality data
+        air_quality = read_air_quality()
+
+        # Send data to ThingSpeak
+        send_to_thingspeak(air_quality)
+
+        # Wait for some time before reading and sending data again
+        time.sleep(300)  # Adjust the sleep time as needed
+    except KeyboardInterrupt:
+        print("Exiting program...")
+        break
